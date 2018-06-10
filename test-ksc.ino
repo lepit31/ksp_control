@@ -20,7 +20,7 @@ byte colPins[COLS] = {43, 41, 39, 37};
 Keypad keypad = Keypad( makeKeymap(keys), rowPins, colPins, ROWS, COLS );
 
 // nb display state
-const int NB_DISPLAY_STATE = 6 ;
+const int NB_DISPLAY_STATE = 7 ;
 // current display State
 int val_display_state = 0;
 
@@ -51,6 +51,20 @@ const int ref_launch_btn = 12;
 const int ref_abort_btn  = 11;
 const int ref_rcs_btn    = 10;
 
+const int ref_cut_btn    = 9;
+const int ref_nomi_btn   = 8;
+const int ref_full_btn   = 7;
+
+const int ref_light_btn  = 6;
+const int ref_ladder_btn = 5;
+const int ref_joy_r_btn  = 4;
+
+const int ref_joy_l_btn  = 3;
+const int ref_gears_btn  = 2;
+const int ref_break_btn = 30;
+const int ref_solar_btn  = 28;
+const int ref_chute_btn  = 26;
+
 float val_joy_l_y = 0;
 float val_joy_l_x = 0;
 float val_joy_l_z = 0;
@@ -70,6 +84,21 @@ int val_launch_btn = 0;
 int val_abort_btn  = 0;
 int val_rcs_btn    = 0;
 
+int val_full_btn   = 0;
+int val_nomi_btn   = 0;
+int val_cut_btn    = 0;
+
+
+int val_light_btn   = 0;
+int val_ladder_btn   = 0;
+int val_joy_r_btn    = 0;
+int val_joy_l_btn   = 0;
+
+int val_gears_btn   = 0;
+int val_break_btn   = 0;
+int val_solar_btn   = 0;
+int val_chute_btn   = 0;
+
 //for a btn add 1 seconde of latency
 const unsigned long BTTIMELATENCY = 1000;
 
@@ -80,6 +109,8 @@ unsigned long val_next_btn_timer  = 0;
 
 unsigned long val_abort_btn_timer = 0;
 unsigned long val_rcs_btn_timer   = 0;
+unsigned long val_joy_r_btn_timer = 0;
+unsigned long val_joy_l_btn_timer = 0;
 
 
 int val_stage_btn_state = 0;
@@ -90,6 +121,8 @@ int val_arm_btn_state = 0;
 int val_launch_btn_state = 0;
 int val_abort_btn_state = 0;
 int val_rcs_btn_state = 0;
+int val_joy_r_btn_state = 0;
+int val_joy_l_btn_state = 0;
 
 float pitch = 0;
 float yaw   = 0;
@@ -117,6 +150,20 @@ void setup() {
   pinMode(ref_launch_btn, INPUT);
   pinMode(ref_abort_btn , INPUT);
   pinMode(ref_rcs_btn   , INPUT);
+
+  pinMode(ref_full_btn , INPUT);
+  pinMode(ref_nomi_btn , INPUT);
+  pinMode(ref_cut_btn  , INPUT);
+
+  pinMode(ref_light_btn , INPUT);
+  pinMode(ref_ladder_btn , INPUT);
+  pinMode(ref_joy_r_btn  , INPUT);
+  pinMode(ref_joy_l_btn  , INPUT);
+
+  pinMode(ref_gears_btn , INPUT);
+  pinMode(ref_break_btn , INPUT);
+  pinMode(ref_solar_btn  , INPUT);
+  pinMode(ref_chute_btn  , INPUT);
 
   //output ref
   pinMode(ref_stage_led, OUTPUT);
@@ -167,11 +214,29 @@ void loop() {
   val_abort_btn  = digitalRead(ref_abort_btn);
   val_rcs_btn    = digitalRead(ref_rcs_btn);
 
-char tmp_key = keypad.getKey();
-if(NO_KEY != tmp_key){
-  val_maneuver = tmp_key;
-}
-  
+  val_full_btn = digitalRead(ref_full_btn);
+  val_nomi_btn = digitalRead(ref_nomi_btn);
+  val_cut_btn  = digitalRead(ref_cut_btn);
+
+  val_light_btn = digitalRead(ref_light_btn);
+  val_ladder_btn = digitalRead(ref_ladder_btn);
+  //erro cablage on light and ladder so inverse reading
+  val_light_btn = val_light_btn == HIGH ? LOW : HIGH;
+  val_ladder_btn = val_ladder_btn == HIGH ? LOW : HIGH;
+
+  val_joy_r_btn = digitalRead(ref_joy_r_btn);
+  val_joy_l_btn = digitalRead(ref_joy_l_btn);
+
+  val_gears_btn = digitalRead(ref_gears_btn);
+  val_break_btn = digitalRead(ref_break_btn);
+  val_solar_btn = digitalRead(ref_solar_btn);
+  val_chute_btn = digitalRead(ref_chute_btn);
+
+  char tmp_key = keypad.getKey();
+  if (NO_KEY != tmp_key) {
+    val_maneuver = tmp_key;
+  }
+
   /*
     Serial.print("pitch  = " );
     Serial.print(pitch);
@@ -195,18 +260,34 @@ if(NO_KEY != tmp_key){
     Serial.print("  z = " );
     Serial.print(z);
     Serial.print("  key = " );
+
+    Serial.print(" val_arm_btn  = " );
+    Serial.print(val_arm_btn);
+    Serial.print("  val_launch_btn = " );
+    Serial.print(val_launch_btn);
+    Serial.print("  val_abort_btn = " );
+    Serial.print(val_abort_btn);
+    Serial.print("  val_rcs_btn = " );
+    Serial.print(val_rcs_btn);
+    Serial.print("  val_full_btn = " );
+    Serial.print(val_full_btn);
+    Serial.print("  val_nomi_btn = " );
+    Serial.print(val_nomi_btn);
+    Serial.print("  val_cut_btn = " );
+    Serial.println(val_cut_btn);
+
   */
-  Serial.print(" val_arm_btn  = " );
-  Serial.print(val_arm_btn);
-  Serial.print("  val_launch_btn = " );
-  Serial.print(val_launch_btn);
-  Serial.print("  val_abort_btn = " );
-  Serial.print(val_abort_btn);
-  Serial.print("  val_rcs_btn = " );
-  Serial.println(val_rcs_btn);
 
-
-
+  Serial.print(" val_gears_btn  = " );
+  Serial.print(val_gears_btn);
+  Serial.print("  val_break_btn = " );
+  Serial.print(val_break_btn);
+  Serial.print("  val_solar_btn = " );
+  Serial.print(val_solar_btn);
+  Serial.print("  val_chute_btn = " );
+  Serial.print(val_chute_btn);
+  Serial.print("  val_joy_l_btn_state = " );
+  Serial.println(val_joy_l_btn_state);
 
   if (val_stage_btn == 1 && now - val_stage_btn_timer > BTTIMELATENCY ) {
     val_stage_btn_timer = now;
@@ -233,6 +314,16 @@ if(NO_KEY != tmp_key){
   if (val_rcs_btn == 1 && now - val_rcs_btn_timer > BTTIMELATENCY ) {
     val_rcs_btn_timer = now;
     val_rcs_btn_state = val_rcs_btn_state == 1 ? 0 : 1;
+  }
+
+  if (val_joy_r_btn == 1 && now - val_joy_r_btn_timer > BTTIMELATENCY ) {
+    val_joy_r_btn_timer = now;
+    val_joy_r_btn_state = val_joy_r_btn_state == 1 ? 0 : 1;
+  }
+
+  if (val_joy_l_btn == 1 && now - val_joy_l_btn_timer > BTTIMELATENCY ) {
+    val_joy_l_btn_timer = now;
+    val_joy_l_btn_state = val_joy_l_btn_state == 1 ? 0 : 1;
   }
 
   digitalWrite(ref_stage_led, val_stage_btn_state);
@@ -317,6 +408,44 @@ void displayLCD() {
       lcd.setCursor(0, 1);
       lcd.print(val_maneuver);
       break;
+    case 4:
+      lcd.setCursor(0, 0);
+      lcd.print("Power :");
+      lcd.setCursor(0, 1);
+      if (val_full_btn == 1) {
+        lcd.print("Full   ");
+      } else if (val_nomi_btn == 1) {
+        lcd.print("Nominal");
+      } else if (val_cut_btn == 1) {
+        lcd.print("Cut    ");
+      } else {
+        lcd.print("ERROR");
+      }
+      break;
+    case 5:
+      lcd.setCursor(0, 0);
+      lcd.print("Btn joy left :");
+      lcd.print(val_joy_l_btn_state);
+      lcd.setCursor(0, 1);
+      lcd.print("Btn joy right :");
+      lcd.print(val_joy_r_btn_state);
+      break;
+    case 6:
+      lcd.setCursor(0, 0);
+      lcd.print("li ");
+      lcd.print(val_light_btn);
+      lcd.print(" la ");
+      lcd.print(val_ladder_btn);
+      lcd.print(" ge ");
+      lcd.print(val_gears_btn);
+      lcd.setCursor(0, 1);
+      lcd.print("br ");
+      lcd.print(val_break_btn);
+      lcd.print(" so ");
+      lcd.print(val_solar_btn);
+      lcd.print(" ge ");
+      lcd.print(val_chute_btn);
+      break;
     default:
       lcd.setCursor(0, 0);
       lcd.print("ERROR STATE");
@@ -324,4 +453,3 @@ void displayLCD() {
 
 
 }
-
